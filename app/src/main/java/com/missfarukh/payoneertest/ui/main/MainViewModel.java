@@ -3,15 +3,18 @@ package com.missfarukh.payoneertest.ui.main;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.missfarukh.payoneertest.model.ApplicableNetwork;
+import com.missfarukh.payoneertest.api.RetrofitAPI;
 import com.missfarukh.payoneertest.model.ListResult;
-import com.missfarukh.payoneertest.model.Networks;
 
-import java.util.ArrayList;
-import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainViewModel extends ViewModel {
     private MutableLiveData<ListResult> listResultMutableLiveData;
+    private RetrofitAPI apiService;
 
     public MutableLiveData<ListResult> getListResultMutableLiveData() {
         return listResultMutableLiveData;
@@ -19,20 +22,29 @@ public class MainViewModel extends ViewModel {
 
     public MainViewModel() {
         this.listResultMutableLiveData = new MutableLiveData<>();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(RetrofitAPI.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        apiService = retrofit.create(RetrofitAPI.class);
+
         fetchListResult();
     }
 
     private void fetchListResult() {
-        ListResult listResult = new ListResult();
-        listResult.setNetworks(new Networks());
-        ApplicableNetwork network = new ApplicableNetwork();
-        network.setLabel("Master");
-        List<ApplicableNetwork> networkList = new ArrayList<>();
-        networkList.add(network);
-        network = new ApplicableNetwork();
-        network.setLabel("Visal");
-        networkList.add(network);
-        listResult.getNetworks().setApplicable(networkList);
-        listResultMutableLiveData.setValue(listResult);
+        Call<ListResult> listResultCall = apiService.getListResult();
+        listResultCall.enqueue(new Callback<ListResult>() {
+            @Override
+            public void onResponse(Call<ListResult> call, Response<ListResult> response) {
+                if (response.body() != null)
+                    listResultMutableLiveData.setValue(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<ListResult> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 }
