@@ -13,6 +13,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainViewModel extends ViewModel {
+    public static String BASE_URL = "https://raw.githubusercontent.com/optile/checkout-android/develop/shared-test/";
+
     private MutableLiveData<ListResult> listResultMutableLiveData;
     private RetrofitAPI apiService;
 
@@ -24,7 +26,7 @@ public class MainViewModel extends ViewModel {
         this.listResultMutableLiveData = new MutableLiveData<>();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(RetrofitAPI.BASE_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = retrofit.create(RetrofitAPI.class);
