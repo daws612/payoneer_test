@@ -21,9 +21,17 @@ public class MainActivity extends AppCompatActivity {
                     .replace(R.id.container, mainFragment)
                     .commitNow();
         }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public CountingIdlingResource getIdlingResourceInTest() {
         return mainFragment.getmViewModel().getmIdlingRes();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }
