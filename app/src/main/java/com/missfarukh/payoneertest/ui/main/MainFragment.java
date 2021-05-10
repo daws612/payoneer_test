@@ -19,11 +19,15 @@ import com.missfarukh.payoneertest.adapter.PaymentOptionsAdapter;
 import com.missfarukh.payoneertest.model.ListResult;
 
 public class MainFragment extends Fragment {
-    String TAG = PaymentOptionsAdapter.class.getSimpleName();
+    String TAG = MainFragment.class.getSimpleName();
 
     private MainViewModel mViewModel;
     RecyclerView paymentOptionsRecyclerView;
     PaymentOptionsAdapter paymentOptionsAdapter;
+
+    public MainViewModel getmViewModel() {
+        return mViewModel;
+    }
 
     public static MainFragment newInstance() {
         return new MainFragment();

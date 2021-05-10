@@ -1,7 +1,10 @@
 package com.missfarukh.payoneertest.ui.main;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.missfarukh.payoneertest.api.RetrofitAPI;
 import com.missfarukh.payoneertest.model.ListResult;
@@ -13,10 +16,16 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainViewModel extends ViewModel {
+    String TAG = MainViewModel.class.getSimpleName();
     public static String BASE_URL = "https://raw.githubusercontent.com/optile/checkout-android/develop/shared-test/";
 
     private MutableLiveData<ListResult> listResultMutableLiveData;
     private RetrofitAPI apiService;
+    CountingIdlingResource mIdlingRes = new CountingIdlingResource("CountingIdlingResource");
+
+    public CountingIdlingResource getmIdlingRes() {
+        return mIdlingRes;
+    }
 
     public MutableLiveData<ListResult> getListResultMutableLiveData() {
         return listResultMutableLiveData;
@@ -35,18 +44,28 @@ public class MainViewModel extends ViewModel {
     }
 
     private void fetchListResult() {
-        Call<ListResult> listResultCall = apiService.getListResult();
-        listResultCall.enqueue(new Callback<ListResult>() {
-            @Override
-            public void onResponse(Call<ListResult> call, Response<ListResult> response) {
-                if (response.body() != null)
-                    listResultMutableLiveData.setValue(response.body());
-            }
+        try {
+            mIdlingRes.increment();
+            Call<ListResult> listResultCall = apiService.getListResult();
+            listResultCall.enqueue(new Callback<ListResult>() {
+                @Override
+                public void onResponse(Call<ListResult> call, Response<ListResult> response) {
+                    if (response.body() != null)
+                        listResultMutableLiveData.setValue(response.body());
+                    mIdlingRes.decrement(); //set Espresso not idle
+                }
 
-            @Override
-            public void onFailure(Call<ListResult> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
+                @Override
+                public void onFailure(Call<ListResult> call, Throwable t) {
+                    t.printStackTrace();
+                    mIdlingRes.decrement();
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+            mIdlingRes.decrement();
+        }
+
     }
 }

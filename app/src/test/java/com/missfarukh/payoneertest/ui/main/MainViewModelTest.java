@@ -24,7 +24,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import static org.junit.Assert.*;
 
 public class MainViewModelTest {
-    
+
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
