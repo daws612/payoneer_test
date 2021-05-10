@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +25,7 @@ public class MainFragment extends Fragment {
     private MainViewModel mViewModel;
     RecyclerView paymentOptionsRecyclerView;
     PaymentOptionsAdapter paymentOptionsAdapter;
+    ProgressBar progressDialog;
 
     public MainViewModel getmViewModel() {
         return mViewModel;
@@ -39,6 +41,7 @@ public class MainFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
         paymentOptionsRecyclerView = view.findViewById(R.id.payment_options_recyclerview);
+        progressDialog = view.findViewById(R.id.pBar);
 
         return view;
     }
@@ -48,6 +51,13 @@ public class MainFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         mViewModel.getListResultMutableLiveData().observe(getViewLifecycleOwner(), listResultObserver);
+
+        mViewModel.getShowProgress().observe(getViewLifecycleOwner(), show -> {
+            if(show)
+                progressDialog.setVisibility(View.VISIBLE);
+            else
+                progressDialog.setVisibility(View.GONE);
+        });
 
         paymentOptionsAdapter = new PaymentOptionsAdapter(requireActivity());
         paymentOptionsRecyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));

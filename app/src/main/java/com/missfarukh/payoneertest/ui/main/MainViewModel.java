@@ -20,6 +20,7 @@ public class MainViewModel extends ViewModel {
     public static String BASE_URL = "https://raw.githubusercontent.com/optile/checkout-android/develop/shared-test/";
 
     private MutableLiveData<ListResult> listResultMutableLiveData;
+    private MutableLiveData<Boolean> showProgress = new MutableLiveData<>(false);
     private RetrofitAPI apiService;
     CountingIdlingResource mIdlingRes = new CountingIdlingResource("CountingIdlingResource");
 
@@ -29,6 +30,10 @@ public class MainViewModel extends ViewModel {
 
     public MutableLiveData<ListResult> getListResultMutableLiveData() {
         return listResultMutableLiveData;
+    }
+
+    public MutableLiveData<Boolean> getShowProgress() {
+        return showProgress;
     }
 
     public MainViewModel() {
@@ -45,6 +50,7 @@ public class MainViewModel extends ViewModel {
 
     private void fetchListResult() {
         try {
+            showProgress.setValue(true);
             mIdlingRes.increment();
             Call<ListResult> listResultCall = apiService.getListResult();
             listResultCall.enqueue(new Callback<ListResult>() {
@@ -53,18 +59,21 @@ public class MainViewModel extends ViewModel {
                     if (response.body() != null)
                         listResultMutableLiveData.setValue(response.body());
                     mIdlingRes.decrement(); //set Espresso not idle
+                    showProgress.setValue(false);
                 }
 
                 @Override
                 public void onFailure(Call<ListResult> call, Throwable t) {
                     t.printStackTrace();
                     mIdlingRes.decrement();
+                    showProgress.setValue(false);
                 }
             });
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
             e.printStackTrace();
             mIdlingRes.decrement();
+            showProgress.setValue(false);
         }
 
     }
